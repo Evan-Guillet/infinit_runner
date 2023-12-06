@@ -11,6 +11,9 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private GameObject[] GroundsOnStage;
 
+    [SerializeField]
+    public int Health;
+
     private GameObject Ship;
 
     private float GroundSize;
@@ -21,8 +24,9 @@ public class GameController : MonoBehaviour
         if(Instance != null){
             Destroy(gameObject);
         }
-
         Instance = this;
+
+        Health = 100;
     }
 
     void Start(){
@@ -46,7 +50,18 @@ public class GameController : MonoBehaviour
     }
 
     void Update(){
-        
+        for(int i = GroundsOnStage.Length - 1; i >= 0; i--){
+            GameObject ground = GroundsOnStage[i];
+
+            if(ground.transform.position.z + GroundSize/2 < Ship.transform.position.z - 6f){
+                float z = ground.transform.position.z;
+                Destroy(ground);
+                int n = Random.Range(0, GroundsPrefabs.Length);
+                ground = Instantiate(GroundsPrefabs[n]);
+                ground.transform.position = new Vector3(0, 0.2f, z + GroundSize * NumberOfGrounds);
+                GroundsOnStage[i] = ground;
+            }
+        }
     }
 
     private void OnDestroy(){

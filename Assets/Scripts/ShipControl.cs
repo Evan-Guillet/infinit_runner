@@ -13,9 +13,32 @@ public class ShipControl : MonoBehaviour
     private float moveSpeed;
     private float currentSpeed = 0;
 
+    private ParticleSystem FlameLeft;
+    private ParticleSystem FlameRight;
+
+    private bool accelerate;
+
     void Start()
     {
         transform.position = new Vector3(0, 0.2f, 0);
+
+        FlameLeft = GameObject.Find("FlameLeft").GetComponent<ParticleSystem>();
+        FlameRight = GameObject.Find("FlameRight").GetComponent<ParticleSystem>();
+
+        accelerate = false;
+    }
+
+    void ChangFlame(ParticleSystem system, bool accelerate){
+        if(!accelerate){
+            var main = system.main;
+            main.startSpeed = 0;
+            main.startSize = 0;
+
+        } else {
+            var main = system.main;
+            main.startSpeed = 2;
+            main.startSize = 1.25f;
+        }
     }
 
     void Update()
@@ -45,6 +68,13 @@ public class ShipControl : MonoBehaviour
             if(currentSpeed > moveSpeed)
                 currentSpeed = moveSpeed;
 
+            if(!accelerate){
+                accelerate = true;
+
+                ChangFlame(FlameLeft, accelerate);
+                ChangFlame(FlameRight, accelerate);
+            }
+
         } else {
             if(currentSpeed > 0){
                 currentSpeed -= 0.1f * Time.deltaTime;
@@ -52,8 +82,20 @@ public class ShipControl : MonoBehaviour
                 if(currentSpeed < 0)
                     currentSpeed = 0;
             }
+
+            if(accelerate){
+                accelerate = false;
+
+                ChangFlame(FlameLeft, accelerate);
+                ChangFlame(FlameRight, accelerate);
+            }
         }
 
         transform.position += transform.forward * currentSpeed;
+    }
+
+    private void OnTriggerEnter(Collider other){
+        Debug.Log("Collision!");
+        GameController.Instance.Health -= 10;
     }
 }
